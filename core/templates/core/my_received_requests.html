@@ -1,0 +1,206 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+    <h2>Exchange Requests for My Books</h2>
+    {% if requests %}
+        <div class="row">
+            {% for req in requests %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0">
+                        <!-- Offered Book -->
+                        <div class="col-4 text-center p-2 border-end">
+                            {% if req.from_book.photo %}
+                                <img src="{{ req.from_book.photo.url }}" class="img-fluid rounded mb-2 fixed-book-image" alt="From Book">
+                            {% else %}
+                                <img src="{% static 'core/images/default_book.jpg' %}" class="img-fluid rounded mb-2 fixed-book-image" alt="From Book">
+                            {% endif %}
+                            <p class="fw-bold mb-1">{{ req.from_book.title }}</p>
+                            <p class="small text-muted mb-1">By {{ req.from_book.author }}</p>
+                            <p class="small mb-1"><strong>Genre:</strong> {{ req.from_book.genre }}</p>
+                            <p class="small mb-1"><strong>Condition:</strong> {{ req.from_book.condition }}</p>
+                            <p class="small mb-0"><strong>Location:</strong> {{ req.from_book.location }}</p>
+                            <p class="mt-2 small bg-dark text-white"><strong>Offered Book</strong></p>
+                        </div>
+
+                        <!-- Your Book -->
+                        <div class="col-4 text-center p-2 border-end">
+                            {% if req.to_book.photo %}
+                                <img src="{{ req.to_book.photo.url }}" class="img-fluid rounded mb-2 fixed-book-image" alt="To Book">
+                            {% else %}
+                                <img src="{% static 'core/images/default_book.jpg' %}" class="img-fluid rounded mb-2 fixed-book-image" alt="To Book">
+                            {% endif %}
+                            <p class="fw-bold mb-1">{{ req.to_book.title }}</p>
+                            <p class="small text-muted mb-1">By {{ req.to_book.author }}</p>
+                            <p class="small mb-1"><strong>Genre:</strong> {{ req.to_book.genre }}</p>
+                            <p class="small mb-1"><strong>Condition:</strong> {{ req.to_book.condition }}</p>
+                            <p class="small mb-0"><strong>Location:</strong> {{ req.to_book.location }}</p>
+                            <p class="mt-2 small bg-dark text-white"><strong>Your Book</strong></p>
+                        </div>
+
+                        <!-- Request Actions -->
+                        <div class="col-4 p-3 d-flex flex-column justify-content-between">
+                            <div>
+                                <p class="mb-1">Requested from <br><strong>{{ req.from_user.username }}</strong></p>
+                                {% if req.from_user.profile.average_rating %}
+                                     {% for i in "12345" %}
+                                                {% if i|add:'0' <= req.from_user.profile.average_rating %}
+                                                    <span style="color: gold; font-size: 1.2em;">&#9733;</span>  {# filled star ★ #}
+                                                {% else %}
+                                                    <span style="color: lightgray; font-size: 1.2em;">&#9733;</span> {# empty star #}
+                                                {% endif %}
+                                            {% endfor %} {% else %}
+                                    <p><strong>Rating:</strong> No ratings yet</p>
+                                {% endif %}
+
+                               
+
+
+                                {% if req.to_user.profile %}
+                                    <p class="small mb-1"><strong>Phone:</strong> {{ req.to_user.profile.phone }}</p>
+                                    <p class="small mb-2"><strong>Location:</strong> {{ req.to_user.profile.location }}</p>
+                                {% endif %}
+                                <p class="mb-1 text-muted small">On {{ req.requested_at|date:"Y-m-d H:i" }}</p>
+
+                                <span class="badge 
+                                    {% if req.status == 'accepted' %}bg-success
+                                    {% elif req.status == 'rejected' %}bg-danger
+                                    {% else %}bg-info{% endif %}">
+                                    {{ req.status }}
+                                </span><br>
+
+                                <div class="card-footer mt-5">
+                                    {% if req.status == 'pending' %}
+                                        <form method="POST" action="{% url 'handle_request' req.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+                                        </form>
+                                        <form method="POST" action="{% url 'handle_request' req.id %}" class="d-inline ms-1">
+                                            {% csrf_token %}
+                                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if req.status == "accepted" %}
+                                        <a href="{% url 'chat' req.id %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                            Chat
+                                            {% if req.unread_count > 0 %}
+                                                <span class="badge bg-danger ms-1">{{ req.unread_count }} Unread Msg</span>
+                                            {% endif %}
+                                        </a>
+                                    {% endif %}
+                                    {% if req.existing_rating %}
+                                       <p class="text-success">
+                                            {% for i in "12345" %}
+                                                {% if i|add:'0' <= req.existing_rating.stars %}
+                                                    <span style="color: gold; font-size: 1.2em;">&#9733;</span>  {# filled star ★ #}
+                                                {% else %}
+                                                    <span style="color: lightgray; font-size: 1.2em;">&#9733;</span> {# empty star #}
+                                                {% endif %}
+                                            {% endfor %}
+                                            <br>
+                                            "{{ req.existing_rating.comment }}"
+                                        </p>
+
+                                    {% else %}
+                                    {% if req.status == 'accepted' and not req.rating %}
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#rateModal{{ req.id }}">
+                                        <i class="fa fa-star"></i> Rate User
+                                        </button>
+
+                                        <!-- Rating Modal -->
+                                        <div class="modal fade" id="rateModal{{ req.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <form method="POST" action="{% url 'submit_rating' req.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                <h5 class="modal-title">Rate {{ req.from_user.username }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="stars">Rating:</label>
+                                                    
+                                                    <div class="star-rating" id="starRating{{ req.id }}">
+                                                        {% for i in "12345" %}
+                                                            <span class="star" data-value="{{ forloop.counter }}">&#9733;</span>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <input type="hidden" id="ratingInput{{ req.id }}" name="stars" required>
+                                                </div>
+
+                                                <label for="comment" class="mt-3">Comment (optional):</label>
+                                                <textarea name="comment" class="form-control" rows="3"></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                                                </div>
+                                            </div>
+                                            </form>
+                                        </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endif %}
+
+
+                                </div>
+
+                                
+
+                            </div>
+
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No one has requested to exchange your books yet.</p>
+    {% endif %}
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modals = document.querySelectorAll('.modal');
+
+    modals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function () {
+            const modalId = modal.id;
+            const stars = modal.querySelectorAll('.star');
+            const ratingInput = modal.querySelector('input[name="stars"]');
+
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', () => {
+                    const value = star.dataset.value;
+                    highlightStars(value, stars);
+                });
+
+                star.addEventListener('mouseleave', () => {
+                    const selectedValue = ratingInput.value;
+                    highlightStars(selectedValue, stars);
+                });
+
+                star.addEventListener('click', () => {
+                    ratingInput.value = star.dataset.value;
+                    highlightStars(ratingInput.value, stars);
+                });
+            });
+
+            function highlightStars(value, stars) {
+                stars.forEach(star => {
+                    const starValue = star.dataset.value;
+                    star.classList.toggle('selected', starValue <= value);
+                });
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

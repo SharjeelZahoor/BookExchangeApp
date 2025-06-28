@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .fixed-book-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+</style>
+
+<div class="container py-4">
+    <h2>Exchange Requests I Made</h2>
+    {% if requests %}
+        <div class="row">
+            {% for req in requests %}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="row g-0">
+                        <!-- Your Book -->
+                        <div class="col-4 text-center p-2 border-end">
+                            {% if req.from_book.photo %}
+                                <img src="{{ req.from_book.photo.url }}" class="img-fluid rounded mb-2 fixed-book-image" alt="Your Book">
+                            {% else %}
+                                <img src="{% static 'core/images/default_book.jpg' %}" class="img-fluid rounded mb-2 fixed-book-image" alt="Your Book">
+                            {% endif %}
+                            <p class="fw-bold mb-1">{{ req.from_book.title }}</p>
+                            <p class="small text-muted mb-1">By {{ req.from_book.author }}</p>
+                            <p class="small mb-1"><strong>Genre:</strong> {{ req.from_book.genre }}</p>
+                            <p class="small mb-1"><strong>Condition:</strong> {{ req.from_book.condition }}</p>
+                            <p class="small mb-0"><strong>Location:</strong> {{ req.from_book.location }}</p>
+                            <p class="mt-2 small bg-dark text-white"><strong>Your Book</strong></p>
+                        </div>
+
+                        <!-- Requested Book -->
+                        <div class="col-4 text-center p-2 border-end">
+                            {% if req.to_book.photo %}
+                                <img src="{{ req.to_book.photo.url }}" class="img-fluid rounded mb-2 fixed-book-image" alt="Requested Book">
+                            {% else %}
+                                <img src="{% static 'core/images/default_book.jpg' %}" class="img-fluid rounded mb-2 fixed-book-image" alt="Requested Book">
+                            {% endif %}
+                            <p class="fw-bold mb-1">{{ req.to_book.title }}</p>
+                            <p class="small text-muted mb-1">By {{ req.to_book.author }}</p>
+                            <p class="small mb-1"><strong>Genre:</strong> {{ req.to_book.genre }}</p>
+                            <p class="small mb-1"><strong>Condition:</strong> {{ req.to_book.condition }}</p>
+                            <p class="small mb-0"><strong>Location:</strong> {{ req.to_book.location }}</p>
+                            <p class="mt-2 small bg-dark text-white"><strong>Requested Book</strong></p>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-4 p-3 d-flex flex-column justify-content-between">
+                            <div>
+                                <p class="mb-1">You <strong> Requested this Book</strong></p>
+                                <p class="mb-1">From Book Owner <strong><br> {{ req.from_user.username }} </strong></p>
+                                 {% with rating=req.to_user.profile.average_rating %}
+                                    {% for i in "12345" %}
+                                        {% if i|add:'0' <= rating %}
+                                            <span style="color: gold; font-size: 1.2em;">&#9733;</span>
+                                        {% else %}
+                                            <span style="color: lightgray; font-size: 1.2em;">&#9733;</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                                <p class="mb-1 text-muted small">On {{ req.requested_at|date:"Y-m-d H:i" }}</p>
+                                <span class="badge 
+                                    {% if req.status == 'accepted' %}bg-success
+                                    {% elif req.status == 'rejected' %}bg-danger
+                                    {% else %}bg-info{% endif %}">
+                                    {{ req.status }}
+                                </span>
+                                {% if req.status == "accepted" %}
+                                    <a href="{% url 'chat' req.id %}" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                     Chat
+                                     {% if req.unread_count > 0 %}
+                                            <span class="badge bg-danger ms-1">{{ req.unread_count }} Unread Msg</span>
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have not made any exchange requests yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

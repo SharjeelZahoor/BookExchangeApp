@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container py-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 700px;">
+        <h2 class="text-center mb-4">
+            {% if edit_mode %}Edit Book{% else %}Add Book for Exchange{% endif %}
+        </h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.title.label_tag }}
+                    {{ form.title }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.author.label_tag }}
+                    {{ form.author }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.genre.label_tag }}
+                    {{ form.genre }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.condition.label_tag }}
+                    {{ form.condition }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.location.label_tag }}
+                    {{ form.location }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.external_url.label_tag }}
+                    {{ form.external_url }}
+                </div>
+
+                <div class="col-12 mb-3">
+                    {{ form.photo.label_tag }}
+                    {{ form.photo }}
+                </div>
+            </div>
+
+            
+            <button type="submit" class="btn btn-primary w-100">
+                {% if edit_mode %}Update Book{% else %}Add Book{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

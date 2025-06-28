@@ -1,0 +1,70 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Available Books for Exchange</h2>
+    </div>
+
+    {% if books %}
+        <div class="row">
+            {% for book in books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow rounded-3 overflow-hidden position-relative">
+                        <a href="{% url 'book_detail' book.id %}" class="stretched-link"></a>
+                        {% if book.photo %}
+                            <img src="{{ book.photo.url }}" class="card-img-top img-fluid" alt="{{ book.title }}" style="height: 350px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'core/images/default_book.jpg' %}" class="card-img-top img-fluid" alt="Book image" style="height: 350px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <h3 class="card-title">
+                                    {{ book.title }} </h3>
+                                <h4>
+                                    {% if book.status %}
+                                        <span class="badge {% if book.status == 'available' %}bg-success{% elif book.status == 'reserved' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                            {{ book.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </h4>
+                                <p class="card-text small text-muted">
+                                    <strong>Author:</strong> {{ book.author }}<br>
+                                    <strong>Genre:</strong> {{ book.genre }}<br>
+                                    <strong>Condition:</strong> {{ book.condition }}<br>
+                                    <strong>Location:</strong> {{ book.location }}<br>
+                                    {% if book.external_url %}
+                                        <strong>External Url:</strong><a href="{{ book.external_url }}" target="_blank" class="  btn-sm py-1 px-2">View More Info Online</a>
+                                    {% endif %}<br>
+                                
+                                <strong>Average Rating:</strong>
+                                    {% if book.owner.profile.average_rating %}
+                                        {% for i in "12345" %}
+                                            {% if i|add:'0' <= book.owner.profile.average_rating %}
+                                                <span style="color: gold; font-size: 1.2em;">&#9733;</span>
+                                            {% else %}
+                                                <span style="color: lightgray; font-size: 1.2em;">&#9733;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        ({{ book.owner.profile.average_rating }}/5)
+                                    {% else %}
+                                        No ratings yet
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <div class="">
+                                <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-outline-secondary mt-2">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No books listed yet. Be the first to <a href="{% url 'add_book' %}">add your book</a>!</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h2>Request Book Exchange</h2>
+    <p>You are requesting to exchange with: <strong>{{ book.title }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_from_book" class="form-label">Select one of your books to offer</label>
+            {{ form.from_book }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Exchange Request</button>
+    </form>
+</div>
+{% endblock %}

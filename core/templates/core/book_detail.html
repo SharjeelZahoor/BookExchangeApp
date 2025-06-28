@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-6">
+            {% if book.photo %}
+                <img src="{{ book.photo.url }}" class="img-fluid rounded shadow" alt="{{ book.title }}">
+            {% else %}
+                <img src="{% static 'images/default_book.jpg' %}" class="img-fluid rounded shadow" alt="Book">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h2>{{ book.title }}</h2>
+            <p><strong>Author:</strong> {{ book.author }}</br>
+            <strong>Genre:</strong> {{ book.genre }}</br>
+            <strong>Condition:</strong> {{ book.condition }}</br>
+            <strong>Location:</strong> {{ book.location }}</p>
+            <h4>Owner Details</h4>
+            <p><strong>Username:</strong> {{ book.owner.username }}</br>
+                
+           <strong>Phone:</strong> {{ book.owner.profile.phone }}</br>
+            <strong>Location:</strong> {{ book.owner.profile.location }}</br>
+            <strong>Bio:</strong> {{ book.owner.profile.bio }}</p>
+
+            <p><strong>Average Rating:</strong>
+                {% if book.owner.profile.average_rating %}
+                    {% for i in "12345" %}
+                        {% if i|add:'0' <= book.owner.profile.average_rating %}
+                            <span style="color: gold; font-size: 1.2em;">&#9733;</span>
+                        {% else %}
+                            <span style="color: lightgray; font-size: 1.2em;">&#9733;</span>
+                        {% endif %}
+                    {% endfor %}
+                    ({{ book.owner.profile.average_rating }}/5)
+                       <!-- View All Ratings Button -->
+                    <br><button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#ratingsModal">
+                        View All Ratings & Feedback
+                    </button><br>
+                    <!-- Ratings Modal -->
+                    <div class="modal fade" id="ratingsModal" tabindex="-1" aria-labelledby="ratingsModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ratingsModalLabel">Ratings for {{ book.owner.username }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% with ratings=book.owner.ratings_received.all %}
+                                {% if ratings %}
+                                    {% for rating in ratings %}
+                                    <div class="border-bottom mb-2 pb-2">
+                                        <p class="mb-1">
+                                        <strong>{{ rating.rated_by.username }}</strong> 
+                                        rated 
+                                        {% for i in "12345" %}
+                                            {% if i|add:'0' <= rating.stars %}
+                                            <span style="color: gold;">&#9733;</span>
+                                            {% else %}
+                                            <span style="color: lightgray;">&#9733;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        </p>
+                                        {% if rating.comment %}
+                                        <p class="text-muted mb-1">"{{ rating.comment }}"</p>
+                                        {% endif %}
+                                        <p class="text-muted small">On {{ rating.created_at|date:"Y-m-d H:i" }}</p>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No ratings or feedback yet.</p>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                {% else %}
+                    No ratings yet
+                {% endif %}
+             
+            </p>
+
+            
+
+            
+            {% if request.user != book.owner %}
+                <a href="{% url 'request_exchange' book.id %}" class="btn btn-success mt-3">Request Exchange</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

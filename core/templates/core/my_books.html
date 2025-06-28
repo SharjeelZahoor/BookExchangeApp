@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Books</h2>
+        {% if user.is_authenticated %}
+            <a href="{% url 'add_book' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Your Book
+            </a>
+        {% endif %}
+    </div>
+
+    {% if books %}
+        <div class="row">
+            {% for book in books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow rounded-3 overflow-hidden">
+                        {% if book.photo %}
+                            <img src="{{ book.photo.url }}" class="card-img-top img-fluid" alt="{{ book.title }}" style="height: 350px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'core/images/default_book.jpg' %}" class="card-img-top img-fluid" alt="Book image" style="height: 350px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text small text-muted">
+                            <strong>Author:</strong> {{ book.author }}<br>
+                            <strong>Genre:</strong> {{ book.genre }}<br>
+                            <strong>Condition:</strong> {{ book.condition }}<br>
+                            <strong>Location:</strong> {{ book.location }}<br>
+                            <strong>Status:</strong> <span class="badge bg-dark text-white">{{ book.status }}</span><br>
+                            {% if book.external_url %}
+                            <strong>External Url:</strong><a href="{{ book.external_url }}" target="_blank" class="  btn-sm py-1 px-2">View More Info Online</a>
+                        {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="">
+                        
+                        <a href="{% url 'edit_book' book.id %}" class="btn btn-outline-primary btn-sm ">Edit</a>
+                        <form method="POST" action="{% url 'delete_book' book.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm mt-3 " onclick="return confirm('Are you sure?')">Delete</button>
+                        </form>
+                    </div>
+                </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You haven't added any books yet. <a href="{% url 'add_book' %}">Add your first book</a>!</p>
+    {% endif %}
+</div>
+{% endblock %}

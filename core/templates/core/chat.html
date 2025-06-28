@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container py-4" style="max-width: 700px;">
+    {% if request.user == exchange.from_user %}
+        <h4 class="mb-4">Chat with {{ exchange.to_user.username }}</h4>
+    {% else %}
+        <h4 class="mb-4">Chat with {{ exchange.from_user.username }}</h4>
+    {% endif %}
+
+    <div class="chat-container border p-3 mb-3 rounded" style="height: 400px; overflow-y: auto; background: #f8f9fa;">
+        {% for msg in chat_messages %}
+            {% if msg.sender == request.user %}
+                <!-- Sent message -->
+                <div class="d-flex justify-content-end mb-2">
+                    <div class="bg-primary text-white p-2 rounded shadow" style="max-width: 75%;">
+                        <div>{{ msg.message }}</div>
+                        <small class="d-block text-end text-light mt-1">{{ msg.sent_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Received message -->
+                <div class="d-flex justify-content-start mb-2">
+                    <div class="bg-light p-2 rounded shadow" style="max-width: 75%;">
+                        <div><strong>{{ msg.sender.username }}</strong>: {{ msg.message }}</div>
+                        <small class="d-block text-muted mt-1">{{ msg.sent_at|date:"Y-m-d H:i" }}</small>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <p class="text-muted">No messages yet.</p>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="d-flex mt-3">
+        {% csrf_token %}
+        <input type="text" name="message" class="form-control me-2" placeholder="Type a message..." required>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}
