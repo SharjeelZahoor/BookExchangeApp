@@ -116,3 +116,45 @@ class Profile(models.Model):
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+        
+
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlists')
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255, blank=True, null=True)
+    genre = models.CharField(max_length=100, blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    notification_sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.title} - {self.user.username}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification to {self.user.username}"
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Book, Wishlist, Notification
+
+@receiver(post_save, sender=Book)
+def match_book_with_wishlist(sender, instance, created, **kwargs):
+    if created:
+        matching_wishes = Wishlist.objects.filter(
+            title__iexact=instance.title,
+            notification_sent=False
+        )
+        for wish in matching_wishes:
+            Notification.objects.create(
+                user=wish.user,
+                message=f"A book you wished for ('{wish.title}') has been listed!"
+            )
+            wish.notification_sent = True
+            wish.save()

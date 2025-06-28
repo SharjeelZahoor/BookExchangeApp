@@ -74,10 +74,11 @@
                                     <div class="product-item">
                  <figure class="product-style">
     			{% if book.photo %}
-        		<img src="{{ book.photo.url }}" alt="{{ book.title }}" class="product-item">
-    			{% else %}
-        		<img src="{% static 'images/no-image.png' %}" alt="No image" class="product-item">
-    			{% endif %}
+    			<img src="{{ book.photo.url }}" alt="{{ book.title }}" class="product-item">
+				{% else %}
+    			<img src="{% static 'core/images/default_book.jpg' %}" alt="No Image" class="product-item">
+				{% endif %}
+
 				</figure>
                                             <h3>{{ book.title }}</h3>
                                             <span>{{ book.author }}</span>

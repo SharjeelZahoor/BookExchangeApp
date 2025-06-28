@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .wishlist-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .wishlist-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #2c3e50;
+    }
+
+    .wishlist-header h2 {
+        font-weight: 600;
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 1.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f1f1f1;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+    }
+
+    .no-items {
+        text-align: center;
+        color: #7f8c8d;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #3498db, #2ecc71);
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #2980b9, #27ae60);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container wishlist-container">
+    <div class="wishlist-header">
+        <h2>My Wishlist</h2>
+        <a href="{% url 'wishlist_add' %}" class="btn btn-primary mb-3">Add New Wish</a>
+    </div>
+
+    <ul class="list-group">
+        {% for wish in wishes %}
+        <li class="list-group-item">
+            <strong>{{ wish.title }}</strong> by {{ wish.author|default:"Unknown" }}
+            
+            {% if wish.notification_sent %}
+                <span class="badge bg-success">Match Found</span>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li class="list-group-item no-items">No wishlist items yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -32,6 +32,10 @@ urlpatterns = [
     
     #reset password
     path('password-change/', password_change_view, name='password_change'),
+    
+    #wishlist
+    path('wishlist/', views.wishlist_list, name='wishlist_list'),
+    path('wishlist/add/', views.wishlist_add, name='wishlist_add'),
      
 
     

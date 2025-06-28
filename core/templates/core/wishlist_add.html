@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Add Book to Wishlist{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #2c3e50;
+    }
+
+    .form-header h2 {
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 1rem;
+        font-size: 1.8rem; /* Increased font size for the header */
+    }
+
+    .form-header h2:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(to right, #3498db, #2ecc71);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 1.1rem; /* Increased font size for labels */
+    }
+
+    .form-control {
+        border-radius: 5px;
+        padding: 15px; /* Increased padding for better touch targets */
+        border: 1px solid #e1e5eb;
+        transition: all 0.3s ease;
+        font-size: 1.1rem; /* Increased font size for input fields */
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn-submit {
+        background: linear-gradient(to right, #3498db, #2ecc71);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        font-weight: 500;
+        border-radius: 5px;
+        width: 100%;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+        font-size: 1.1rem; /* Increased font size for button */
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="wishlist-form-container">
+        <div class="form-header">
+            <h2>Add Book to Wishlist</h2>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">Title</label>
+                <input type="text" class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" placeholder="Enter book title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.author.id_for_label }}">Author</label>
+                <input type="text" class="form-control" id="{{ form.author.id_for_label }}" name="{{ form.author.name }}" placeholder="Enter author name" required>
+            </div>
+
+            <button type="submit" class="btn btn-submit">Save to Wishlist</button>
+
+            <div class="form-footer">
+                <p>Your wishlist helps you keep track of books you want to read</p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

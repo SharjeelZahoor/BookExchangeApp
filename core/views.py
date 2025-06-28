@@ -18,6 +18,34 @@ from .models import Rating
 from .models import Rating, ExchangeRequest
 from django.contrib import messages
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
+from .models import Wishlist, Notification
+from .forms import WishlistForm
+
+@login_required
+def wishlist_list(request):
+    wishes = Wishlist.objects.filter(user=request.user)
+    return render(request, 'core/wishlist_list.html', {'wishes': wishes})
+
+@login_required
+def wishlist_add(request):
+    if request.method == 'POST':
+        form = WishlistForm(request.POST)
+        if form.is_valid():
+            wish = form.save(commit=False)
+            wish.user = request.user
+            wish.save()
+            return redirect('wishlist_list')
+    else:
+        form = WishlistForm()
+    return render(request, 'core/wishlist_add.html', {'form': form})
+
+
+
+
+
 @login_required
 def submit_rating(request, request_id):
     exchange = get_object_or_404(ExchangeRequest, id=request_id, to_user=request.user)
@@ -214,8 +242,16 @@ def my_books(request):
 @login_required
 def book_list(request):
     books = Book.objects.filter(status='available').exclude(owner=request.user).order_by('-created_at')
-    return render(request, 'core/book_list.html', {'books': books})
 
+    # Count unread notifications
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    return render(request, 'core/book_list.html', {
+        'books': books,
+        'unread_count': unread_count,
+    })
+    
+    
 @login_required
 def profile(request):
     return render(request, 'core/profile.html')

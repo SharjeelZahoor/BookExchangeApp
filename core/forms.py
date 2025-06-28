@@ -25,3 +25,14 @@ class BookForm(forms.ModelForm):
             'external_url': forms.URLInput(attrs={'class': 'form-control'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+        
+        
+from .models import Wishlist
+
+class WishlistForm(forms.ModelForm):
+    class Meta:
+        model = Wishlist
+        fields = ['title', 'author', 'genre', 'note']
+        widgets = {
+            'note': forms.Textarea(attrs={'rows': 3}),
+        }
